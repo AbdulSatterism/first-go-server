@@ -20,10 +20,15 @@ func dynamicRoute(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "dynamic route: ", id)
 }
 
+func homeRoute(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "welcome to home to my server")
+}
+
 func main() {
 
 	mux := http.NewServeMux() // this is route
 
+	mux.HandleFunc("/", homeRoute)
 	mux.HandleFunc("/about", introduceMe)
 
 	mux.HandleFunc("/home", aboutMe)
