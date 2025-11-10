@@ -29,8 +29,9 @@ var productList []IProduct
 
 func getProducts(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("content-type", "application/json")
+	corsHandler(w)
+
+	handlePreflight(w, r)
 
 	if r.Method != "GET" {
 		http.Error(w, "This method not allow", 400)
@@ -45,15 +46,9 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 
 func createProduct(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("content-type", "application/json")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	corsHandler(w)
 
-	if r.Method == "OPTIONS" {
-		w.WriteHeader(200)
-		return
-	}
+	handlePreflight(w, r)
 
 	if r.Method != "POST" {
 		http.Error(w, "This method not allow, please provide POST method", 400)
@@ -75,10 +70,30 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 
 	productList = append(productList, newProduct)
 
-	w.WriteHeader(201)
+	sendData(w, newProduct, 201)
+
+}
+
+func corsHandler(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("content-type", "application/json")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+}
+
+func handlePreflight(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
+}
+
+func sendData(w http.ResponseWriter, product interface{}, statusCode int) {
+	w.WriteHeader(statusCode)
 
 	encoder := json.NewEncoder(w)
-	encoder.Encode(newProduct)
+	encoder.Encode(product)
 
 }
 
