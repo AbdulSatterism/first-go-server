@@ -43,17 +43,55 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func createProduct(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("content-type", "application/json")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
+
+	if r.Method != "POST" {
+		http.Error(w, "This method not allow, please provide POST method", 400)
+		return
+	}
+
+	var newProduct IProduct
+
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&newProduct)
+
+	if err != nil {
+		http.Error(w, "invalid json formate", 400)
+		return
+	}
+
+	newProduct.ID = len(productList) + 1
+
+	productList = append(productList, newProduct)
+
+	w.WriteHeader(201)
+
+	encoder := json.NewEncoder(w)
+	encoder.Encode(newProduct)
+
+}
+
 func main() {
 
 	mux := http.NewServeMux() // this is route
 
-	mux.HandleFunc("/about", introduceMe)
-
-	mux.HandleFunc("/home", aboutMe)
-
 	// adding new route for products
 
 	mux.HandleFunc("/products", getProducts)
+
+	// create product
+	mux.HandleFunc("/create-product", createProduct)
 
 	fmt.Println("server running on port :3000")
 
