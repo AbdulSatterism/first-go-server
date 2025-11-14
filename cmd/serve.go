@@ -3,24 +3,24 @@ package cmd
 import (
 	"fmt"
 	"net/http"
-	"practice/global_router"
+
 	"practice/middleware"
 )
 
 func Serve() {
 	manager := middleware.NewManager()
 
-	manager.Use(middleware.Logger)
+	manager.Use(middleware.Preflight, middleware.Cors, middleware.Logger)
 
-	mux := http.NewServeMux() // this is route
+	mux := http.NewServeMux()
+
+	wrappedMux := manager.WrapMux(mux)
 
 	InitRoutes(mux, manager)
 
-	globalRouter := global_router.GlobalRouter(mux)
-
 	fmt.Println("server running on port :3000")
 
-	err := http.ListenAndServe(":3000", globalRouter)
+	err := http.ListenAndServe(":3000", wrappedMux)
 
 	if err != nil {
 		fmt.Println("something went wrong server is not running", err)
