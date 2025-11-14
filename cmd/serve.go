@@ -4,20 +4,17 @@ import (
 	"fmt"
 	"net/http"
 	"practice/global_router"
-	"practice/handlers"
+	"practice/middleware"
 )
 
 func Serve() {
+	manager := middleware.NewManager()
+
+	manager.Use(middleware.Logger)
 
 	mux := http.NewServeMux() // this is route
 
-	// adding new route for products
-	mux.Handle("GET /products", http.HandlerFunc(handlers.GetProducts))
-
-	// create product
-	mux.Handle("POST /products", http.HandlerFunc(handlers.CreateProduct))
-
-	mux.Handle("GET /products/{id}", http.HandlerFunc(handlers.GetProductsById))
+	InitRoutes(mux, manager)
 
 	globalRouter := global_router.GlobalRouter(mux)
 
