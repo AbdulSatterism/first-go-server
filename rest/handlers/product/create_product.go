@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
-	var newProduct database.IProduct
+	var newProduct database.Product
 
 	decoder := json.NewDecoder(r.Body)
 
@@ -19,10 +19,8 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newProduct.ID = len(database.ProductList) + 1
+	createProduct := database.Store(newProduct)
 
-	database.ProductList = append(database.ProductList, newProduct)
-
-	utils.SendData(w, newProduct, 201)
+	utils.SendData(w, createProduct, 201)
 
 }

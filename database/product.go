@@ -1,8 +1,8 @@
 package database
 
-var ProductList []IProduct
+var productList []Product
 
-type IProduct struct {
+type Product struct {
 	ID          int     `json:"id"` // it converted into small leter id
 	Name        string  `json:"name"`
 	Price       float64 `json:"price"`
@@ -10,11 +10,31 @@ type IProduct struct {
 	Description string  `json:"description"`
 }
 
+func Store(p Product) Product {
+	p.ID = len(productList) + 1
+	productList = append(productList, p)
+	return p
+}
+
+func List() []Product {
+	return productList
+}
+
+func Get(id int) *Product {
+	for _, product := range productList {
+		if product.ID == id {
+			return &product
+		}
+	}
+
+	return nil
+}
+
 func init() {
 
 	// some demo product
 
-	product1 := IProduct{
+	product1 := Product{
 		ID:          1,
 		Name:        "Laptop",
 		Price:       45000.00,
@@ -22,7 +42,7 @@ func init() {
 		Description: "This is a gaming laptop",
 	}
 
-	product2 := IProduct{
+	product2 := Product{
 		ID:          2,
 		Name:        "Mobile Phone",
 		Price:       25000.00,
@@ -30,7 +50,7 @@ func init() {
 		Description: "This is a smartphone",
 	}
 
-	product3 := IProduct{
+	product3 := Product{
 		ID:          3,
 		Name:        "Headphones",
 		Price:       5000.00,
@@ -38,6 +58,6 @@ func init() {
 		Description: "This is a wireless headphone",
 	}
 
-	ProductList = append(ProductList, product1, product2, product3)
+	productList = append(productList, product1, product2, product3)
 
 }
