@@ -1,11 +1,17 @@
 package repo
 
+import (
+	"fmt"
+
+	"github.com/jmoiron/sqlx"
+)
+
 type Product struct {
-	ID          int     `json:"id"`
-	Name        string  `json:"name"`
-	Price       float64 `json:"price"`
-	Stock       int     `json:"stock"`
-	Description string  `json:"description"`
+	ID          int     `json:"id" db:"id"`
+	Name        string  `json:"name" db:"name"`
+	Price       float64 `json:"price" db:"price"`
+	Stock       int     `json:"stock" db:"stock"`
+	Description string  `json:"description" db:"description"`
 }
 
 type ProductRepo interface {
@@ -17,30 +23,44 @@ type ProductRepo interface {
 }
 
 type productRepo struct {
-	productList []*Product
+	db *sqlx.DB
 }
 
 // constructor function
-func NewProductRepo() ProductRepo {
-	repo := &productRepo{}
-	generateInitialProducts(repo)
-	return repo
+func NewProductRepo(db *sqlx.DB) ProductRepo {
+	return &productRepo{
+		db: db,
+	}
+
 }
 
 func (r *productRepo) Create(p Product) (*Product, error) {
-	p.ID = len(r.productList) + 1
-	r.productList = append(r.productList, &p)
+
+	query := `Insert into products (name,price,stock,description) values($1,$2,$3,$4) returning id`
+
+	row := r.db.QueryRow(query, p.Name, p.Price, p.Stock, p.Description)
+
+	err := row.Scan(&p.ID)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
 	return &p, nil
+
 }
 
 func (r *productRepo) Get(productId int) (*Product, error) {
-	for _, product := range r.productList {
-		if product.ID == productId {
-			return product, nil
-		}
-	}
+	fmt.Println("Getting product with ID:", productId) // Debugging line
 
-	return nil, nil
+	return &Product{
+		ID:          productId,
+		Name:        "Sample Product",
+		Price:       0.0,
+		Stock:       0,
+		Description: "This is a sample product",
+	}, nil
 }
 
 // func (r *productRepo) Update(productId int) (*Product, error) {
@@ -52,35 +72,5 @@ func (r *productRepo) Get(productId int) (*Product, error) {
 // }
 
 func (r *productRepo) List() ([]*Product, error) {
-	return r.productList, nil
-}
-
-func generateInitialProducts(r *productRepo) {
-
-	product1 := Product{
-		ID:          1,
-		Name:        "Laptop",
-		Price:       45000.00,
-		Stock:       5,
-		Description: "This is a gaming laptop",
-	}
-
-	product2 := Product{
-		ID:          2,
-		Name:        "Mobile Phone",
-		Price:       25000.00,
-		Stock:       10,
-		Description: "This is a smartphone",
-	}
-
-	product3 := Product{
-		ID:          3,
-		Name:        "Headphones",
-		Price:       5000.00,
-		Stock:       15,
-		Description: "This is a wireless headphone",
-	}
-
-	r.productList = append(r.productList, &product1, &product2, &product3)
-
+	return nil, nil
 }

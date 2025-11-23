@@ -16,6 +16,7 @@ type Config struct {
 	Port        int
 	ServiceName string
 	JwtSecret   string
+	DatabaseUrl string
 }
 
 func loadConfig() {
@@ -31,6 +32,7 @@ func loadConfig() {
 	port := os.Getenv("PORT")
 	serviceName := os.Getenv("SERVICE_NAME")
 	jwtSecret := os.Getenv("JWT_SECRET")
+	databaseUrl := os.Getenv("DATABASE_URL")
 
 	if version == "" {
 		fmt.Println("version is required")
@@ -59,11 +61,17 @@ func loadConfig() {
 		os.Exit(1)
 	}
 
+	if databaseUrl == "" {
+		fmt.Println("database url is required")
+		os.Exit(1)
+	}
+
 	configurations = &Config{
 		Version:     version,
 		Port:        int(converted_port),
 		ServiceName: serviceName,
 		JwtSecret:   jwtSecret,
+		DatabaseUrl: databaseUrl,
 	}
 
 }

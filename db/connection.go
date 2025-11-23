@@ -2,18 +2,18 @@ package db
 
 import (
 	"fmt"
+	"practice/config"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
-func GetConnectionString() string {
-	return "postgres://postgres:123456@localhost:5432/postgres?sslmode=disable"
+func GetConnectionString(cnf *config.Config) string {
+	return cnf.DatabaseUrl
 }
 
-func NewConnection() (*sqlx.DB, error) {
-
-	dbSource := GetConnectionString()
+func NewConnection(cnf *config.Config) (*sqlx.DB, error) {
+	dbSource := GetConnectionString(cnf)
 
 	dbCon, err := sqlx.Connect("postgres", dbSource)
 
