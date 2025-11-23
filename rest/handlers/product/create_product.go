@@ -3,24 +3,40 @@ package product
 import (
 	"encoding/json"
 	"net/http"
-	"practice/database"
+	"practice/repo"
 	"practice/utils"
 )
 
+type RequestCreateProduct struct {
+	Name        string  `json:"name"`
+	Price       float64 `json:"price"`
+	Stock       int     `json:"stock"`
+	Description string  `json:"description"`
+}
+
 func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
-	var newProduct database.Product
+	var req RequestCreateProduct
 
 	decoder := json.NewDecoder(r.Body)
 
-	err := decoder.Decode(&newProduct)
-
+	err := decoder.Decode(&req)
 	if err != nil {
 		http.Error(w, "invalid json formate", 400)
 		return
 	}
 
-	createProduct := database.Store(newProduct)
+	createProduct, err := h.productRepo.Create(repo.Product{
+		Name:        req.Name,
+		Price:       req.Price,
+		Stock:       req.Stock,
+		Description: req.Description,
+	})
 
-	utils.SendData(w, createProduct, 201)
+	if err != nil {
+		http.Error(w, "failed to create product", 500)
+		return
+	}
+
+	utils.SendData(w, createProduct, http.StatusCreated)
 
 }

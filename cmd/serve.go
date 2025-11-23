@@ -5,6 +5,7 @@ import (
 	"os"
 	"practice/config"
 	"practice/db"
+	"practice/repo"
 	"practice/rest"
 	"practice/rest/handlers/product"
 	"practice/rest/middleware"
@@ -13,19 +14,18 @@ import (
 func Serve() {
 	cnf := config.GetConfig()
 
-	dbCon, err := db.NewConnection()
+	_, err := db.NewConnection()
 
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	// ensure database connected
-	dbCon.Ping()
+	productRepo := repo.NewProductRepo()
 
 	middlewares := middleware.NewMiddlewares(cnf)
 
-	productHandler := product.NewHandler(middlewares)
+	productHandler := product.NewHandler(middlewares, productRepo)
 
 	server := rest.NewServer(cnf, productHandler)
 

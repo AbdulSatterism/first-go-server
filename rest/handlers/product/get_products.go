@@ -2,10 +2,16 @@ package product
 
 import (
 	"net/http"
-	"practice/database"
 	"practice/utils"
 )
 
 func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
-	utils.SendData(w, database.List(), 200)
+
+	products, err := h.productRepo.List()
+	if err != nil {
+		http.Error(w, "failed to get products", 500)
+		return
+	}
+
+	utils.SendData(w, products, http.StatusOK)
 }

@@ -2,7 +2,6 @@ package product
 
 import (
 	"net/http"
-	"practice/database"
 	"practice/utils"
 	"strconv"
 )
@@ -17,9 +16,8 @@ func (h *Handler) GetProductsById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product := database.Get(pId)
-
-	if product == nil {
+	product, err := h.productRepo.Get(pId)
+	if err != nil {
 		utils.SendError(w, 404, "product not found")
 		return
 	}
